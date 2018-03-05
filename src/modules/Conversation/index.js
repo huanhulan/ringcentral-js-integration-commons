@@ -1,6 +1,7 @@
 import RcModule from '../../lib/RcModule';
-import { Module } from '../../lib/di';
+import {Module} from '../../lib/di';
 import moduleStatuses from '../../enums/moduleStatuses';
+import messageSenderMessages from '../MessageSender/messageSenderMessages';
 
 import {
   getMyNumberFromMessage,
@@ -18,7 +19,7 @@ import proxify from '../../lib/proxy/proxify';
  * @description Conversation managing module
  */
 @Module({
-  deps: ['MessageSender', 'ExtensionInfo', 'MessageStore']
+  deps: ['Alert', 'MessageSender', 'ExtensionInfo', 'MessageStore']
 })
 export default class Conversation extends RcModule {
   /**
@@ -29,6 +30,7 @@ export default class Conversation extends RcModule {
    * @param {MessageStore} params.messageStore - messageStore module instance
    */
   constructor({
+    alert,
     messageSender,
     extensionInfo,
     messageStore,
@@ -38,6 +40,7 @@ export default class Conversation extends RcModule {
       ...options,
       actionTypes,
     });
+    this._alert = alert;
     this._reducer = getConversationReducer(this.actionTypes);
     this._messageSender = messageSender;
     this._extensionInfo = extensionInfo;
@@ -64,17 +67,14 @@ export default class Conversation extends RcModule {
     return (
       this._extensionInfo.ready &&
       this._messageSender.ready &&
-      this._messageStore.ready &&
-      !this.ready
+      this._messageStore.ready && !this.ready
     );
   }
 
   _shouldReset() {
     return (
       (
-        !this._extensionInfo.ready ||
-        !this._messageSender.ready ||
-        !this._messageStore.ready
+        !this._extensionInfo.ready || !this._messageSender.ready || !this._messageStore.ready
       ) &&
       this.ready
     );
@@ -232,6 +232,31 @@ export default class Conversation extends RcModule {
     );
   }
 
+  _alertWarning(message) {
+    if (message) {
+      const ttlConfig = message !== messageSenderMessages.noAreaCode
+        ? {ttl: 0} : null;
+      this._alert.warning({
+        message,
+        ...ttlConfig
+      });
+      return true;
+    }
+    return false;
+  }
+
+  @proxify
+  async updateMessageText(text) {
+    if (text.length > 1000) {
+      return this._alertWarning(messageSenderMessages.textTooLong);
+    }
+    this.store.dispatch({
+      type: this.actionTypes.updateMessages,
+      text,
+      id: this.id
+    });
+  }
+
   @proxify
   async replyToReceivers(text) {
     this.store.dispatch({
@@ -300,5 +325,14 @@ export default class Conversation extends RcModule {
 
   get messageStoreUpdatedAt() {
     return this.state.messageStoreUpdatedAt;
+  }
+
+  get messageText() {
+    const res = this.state.messageTexts.find(msg => msg.id === this.id);
+    return res ? res.text : '';
+  }
+
+  get messageTexts() {
+    return this.state.messageTexts;
   }
 }
