@@ -1,9 +1,9 @@
-import {combineReducers} from 'redux';
+import { combineReducers } from 'redux';
 import getModuleStatusReducer from '../../lib/getModuleStatusReducer';
 import conversationStatus from './conversationStatus';
 
 export function getConversationStatusReducer(types) {
-  return (state = conversationStatus.idle, {type}) => {
+  return (state = conversationStatus.idle, { type }) => {
     switch (type) {
       case types.reply:
         return conversationStatus.pushing;
@@ -17,7 +17,7 @@ export function getConversationStatusReducer(types) {
 }
 
 export function getConversationIdReducer(types) {
-  return (state = null, {type, conversationId}) => {
+  return (state = null, { type, conversationId }) => {
     switch (type) {
       case types.loadId:
       case types.load:
@@ -31,7 +31,7 @@ export function getConversationIdReducer(types) {
 }
 
 export function getMessagesReducer(types) {
-  return (state = [], {type, messages}) => {
+  return (state = [], { type, messages }) => {
     switch (type) {
       case types.load:
         return messages;
@@ -44,7 +44,7 @@ export function getMessagesReducer(types) {
 }
 
 export function getSenderNumberReducer(types) {
-  return (state = null, {type, senderNumber}) => {
+  return (state = null, { type, senderNumber }) => {
     switch (type) {
       case types.load:
         return senderNumber;
@@ -57,7 +57,7 @@ export function getSenderNumberReducer(types) {
 }
 
 export function getRecipientsReducer(types) {
-  return (state = [], {type, recipients}) => {
+  return (state = [], { type, recipients }) => {
     switch (type) {
       case types.load:
       case types.updateRecipients:
@@ -71,7 +71,7 @@ export function getRecipientsReducer(types) {
 }
 
 export function getMessageStoreUpdatedAtReducer(types) {
-  return (state = null, {type, conversationsTimestamp}) => {
+  return (state = null, { type, conversationsTimestamp }) => {
     switch (type) {
       case types.load: {
         return conversationsTimestamp;
@@ -83,10 +83,10 @@ export function getMessageStoreUpdatedAtReducer(types) {
 }
 
 export function getMessageTextsReducer(types) {
-  return (state = [], {type, text, id}) => {
+  return (state = [], { type, text, id }) => {
     switch (type) {
       case types.updateMessages:
-        return [{id, text}].concat(state);
+        return [{ id, text }].concat(state);
       case types.removeMessage:
         return state.filter(msg => typeof msg === 'object' && msg.id !== id);
       default:
@@ -104,6 +104,6 @@ export default function getConversationReducer(types) {
     senderNumber: getSenderNumberReducer(types),
     recipients: getRecipientsReducer(types),
     messageStoreUpdatedAt: getMessageStoreUpdatedAtReducer(types),
-    messageTexts: getMessageTextsReducer(types)
+    messageTexts: getMessageTextsReducer(types),
   });
 }

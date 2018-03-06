@@ -1,5 +1,5 @@
 import RcModule from '../../lib/RcModule';
-import {Module} from '../../lib/di';
+import { Module } from '../../lib/di';
 import moduleStatuses from '../../enums/moduleStatuses';
 import messageSenderMessages from '../MessageSender/messageSenderMessages';
 
@@ -19,7 +19,7 @@ import proxify from '../../lib/proxy/proxify';
  * @description Conversation managing module
  */
 @Module({
-  deps: ['Alert', 'MessageSender', 'ExtensionInfo', 'MessageStore']
+  deps: ['Alert', 'MessageSender', 'ExtensionInfo', 'MessageStore'],
 })
 export default class Conversation extends RcModule {
   /**
@@ -67,15 +67,16 @@ export default class Conversation extends RcModule {
     return (
       this._extensionInfo.ready &&
       this._messageSender.ready &&
-      this._messageStore.ready && !this.ready
+      this._messageStore.ready &&
+      !this.ready
     );
   }
 
   _shouldReset() {
     return (
-      (
-        !this._extensionInfo.ready || !this._messageSender.ready || !this._messageStore.ready
-      ) &&
+      (!this._extensionInfo.ready ||
+        !this._messageSender.ready ||
+        !this._messageStore.ready) &&
       this.ready
     );
   }
@@ -83,7 +84,7 @@ export default class Conversation extends RcModule {
   _shouldReloadConversation() {
     return (
       this.ready &&
-      (!!this.id) &&
+      !!this.id &&
       this.messageStoreUpdatedAt !== this._messageStore.updatedTimestamp
     );
   }
@@ -135,8 +136,10 @@ export default class Conversation extends RcModule {
       return;
     }
     const recipients = this.recipients.slice();
-    const defaultNumberIndex = recipients.findIndex(number =>
-      (number.extensionNumber === phoneNumber || number.phoneNumber === phoneNumber)
+    const defaultNumberIndex = recipients.findIndex(
+      number =>
+        number.extensionNumber === phoneNumber ||
+        number.phoneNumber === phoneNumber,
     );
     if (defaultNumberIndex < 0) {
       return;
@@ -165,13 +168,15 @@ export default class Conversation extends RcModule {
   }
 
   _loadConversation(conversationId) {
-    const conversation = this._messageStore.findConversationById(conversationId);
+    const conversation = this._messageStore.findConversationById(
+      conversationId,
+    );
     if (!conversation) {
       return;
     }
-    const messages = this._messageStore.messages.filter(message => (
-      message.conversationId === conversationId
-    ));
+    const messages = this._messageStore.messages.filter(
+      message => message.conversationId === conversationId,
+    );
     const lastMessage = this._messageStore.allConversations[conversation.index];
     const senderNumber = this._getCurrentSenderNumber(lastMessage);
     let recipients = lastMessage && lastMessage.recipients;
@@ -211,7 +216,7 @@ export default class Conversation extends RcModule {
   _getReplyOnMessageId() {
     const lastMessage =
       this.messages &&
-      (this.messages.length > 0) &&
+      this.messages.length > 0 &&
       this.messages[this.messages.length - 1];
     if (lastMessage && lastMessage.id) {
       return lastMessage.id;
@@ -223,22 +228,22 @@ export default class Conversation extends RcModule {
     if (!this.senderNumber) {
       return null;
     }
-    return (this.senderNumber.extensionNumber || this.senderNumber.phoneNumber);
+    return this.senderNumber.extensionNumber || this.senderNumber.phoneNumber;
   }
 
   _getToNumbers() {
     return this.recipients.map(
-      recipient => (recipient.extensionNumber || recipient.phoneNumber)
+      recipient => recipient.extensionNumber || recipient.phoneNumber,
     );
   }
 
   _alertWarning(message) {
     if (message) {
-      const ttlConfig = message !== messageSenderMessages.noAreaCode
-        ? {ttl: 0} : null;
+      const ttlConfig =
+        message !== messageSenderMessages.noAreaCode ? { ttl: 0 } : null;
       this._alert.warning({
         message,
-        ...ttlConfig
+        ...ttlConfig,
       });
       return true;
     }
@@ -250,10 +255,10 @@ export default class Conversation extends RcModule {
     if (text.length > 1000) {
       return this._alertWarning(messageSenderMessages.textTooLong);
     }
-    this.store.dispatch({
+    return this.store.dispatch({
       type: this.actionTypes.updateMessages,
       text,
-      id: this.id
+      id: this.id,
     });
   }
 
@@ -263,13 +268,12 @@ export default class Conversation extends RcModule {
       type: this.actionTypes.reply,
     });
     try {
-      const responses = await this._messageSender
-        .send({
-          fromNumber: this._getFromNumber(),
-          toNumbers: this._getToNumbers(),
-          text,
-          replyOnMessageId: this._getReplyOnMessageId(),
-        });
+      const responses = await this._messageSender.send({
+        fromNumber: this._getFromNumber(),
+        toNumbers: this._getToNumbers(),
+        text,
+        replyOnMessageId: this._getReplyOnMessageId(),
+      });
       if (responses && responses[0]) {
         this._messageStore.pushMessage(responses[0]);
         this.store.dispatch({
@@ -277,7 +281,7 @@ export default class Conversation extends RcModule {
         });
         this.store.dispatch({
           type: this.actionTypes.removeMessage,
-          id: this.id
+          id: this.id,
         });
         return responses[0];
       }
@@ -332,7 +336,9 @@ export default class Conversation extends RcModule {
   }
 
   get messageText() {
-    const res = this.state.messageTexts.find(msg => typeof msg === 'object' && msg.id === this.id);
+    const res = this.state.messageTexts.find(
+      msg => typeof msg === 'object' && msg.id === this.id,
+    );
     return res ? res.text : '';
   }
 
