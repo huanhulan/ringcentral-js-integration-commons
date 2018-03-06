@@ -10,6 +10,6 @@ export default new Enum([
   'unload',
   'updateRecipients',
   'loadId',
-  'updateMessages'
+  'updateMessages',
   'removeMessage'
 ], 'conversation');
