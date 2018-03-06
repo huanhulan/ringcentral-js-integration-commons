@@ -333,11 +333,13 @@ export default class Conversation extends RcModule {
     return this.state.recipients;
   }
 
-  @getter
-  messageTexts = createSelector(
-    () => this.state.messageTexts,
-    messageTexts => messageTexts || [],
-  );
+  get messageStoreUpdatedAt() {
+    return this.state.messageStoreUpdatedAt;
+  }
+
+  get messageTexts() {
+    return this.state.messageTexts;
+  }
 
   @getter
   messageText = createSelector(
