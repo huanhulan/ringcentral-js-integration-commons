@@ -275,6 +275,10 @@ export default class Conversation extends RcModule {
         this.store.dispatch({
           type: this.actionTypes.replySuccess,
         });
+        this.store.dispatch({
+          type: this.actionTypes.removeMessage,
+          id: this.id
+        });
         return responses[0];
       }
       this._onReplyError();

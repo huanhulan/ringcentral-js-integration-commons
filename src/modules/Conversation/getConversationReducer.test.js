@@ -280,11 +280,10 @@ describe('CompostText :: getMessageTextsReducer', () => {
     });
     it('should return blank string on reply', () => {
       [
-        actionTypes.reply,
+        actionTypes.removeMessage,
       ].forEach(type => {
         expect(reducer([], {
           type,
-          text: '12345678',
           id: 2
         }).length).to.equal(0);
       });

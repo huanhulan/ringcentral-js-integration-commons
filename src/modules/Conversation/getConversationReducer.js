@@ -87,7 +87,7 @@ export function getMessageTextsReducer(types) {
     switch (type) {
       case types.updateMessages:
         return [{id, text}].concat(state);
-      case types.reply:
+      case types.removeMessage:
         return state.filter(msg => typeof msg === 'object' && msg.id !== id);
       default:
         return state;
