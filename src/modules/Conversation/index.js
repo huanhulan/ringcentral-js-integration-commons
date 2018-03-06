@@ -1,5 +1,7 @@
+import { createSelector } from 'reselect';
 import RcModule from '../../lib/RcModule';
 import { Module } from '../../lib/di';
+import getter from '../../lib/getter';
 import moduleStatuses from '../../enums/moduleStatuses';
 import messageSenderMessages from '../MessageSender/messageSenderMessages';
 
@@ -342,7 +344,21 @@ export default class Conversation extends RcModule {
     return res ? res.text : '';
   }
 
-  get messageTexts() {
-    return this.state.messageTexts;
-  }
+  @getter
+  messageTexts = createSelector(
+    () => this.state.messageTexts,
+    messageTexts => messageTexts || [],
+  );
+
+  @getter
+  messageText = createSelector(
+    () => this.messageTexts,
+    () => this.id,
+    (messageTexts, id) => {
+      const res = messageTexts.find(
+        msg => typeof msg === 'object' && msg.id === id,
+      );
+      return res ? res.text : '';
+    },
+  );
 }
