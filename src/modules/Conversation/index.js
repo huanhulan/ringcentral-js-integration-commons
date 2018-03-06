@@ -333,17 +333,6 @@ export default class Conversation extends RcModule {
     return this.state.recipients;
   }
 
-  get messageStoreUpdatedAt() {
-    return this.state.messageStoreUpdatedAt;
-  }
-
-  get messageText() {
-    const res = this.state.messageTexts.find(
-      msg => typeof msg === 'object' && msg.id === this.id,
-    );
-    return res ? res.text : '';
-  }
-
   @getter
   messageTexts = createSelector(
     () => this.state.messageTexts,
