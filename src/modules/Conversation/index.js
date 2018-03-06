@@ -328,7 +328,7 @@ export default class Conversation extends RcModule {
   }
 
   get messageText() {
-    const res = this.state.messageTexts.find(msg => msg.id === this.id);
+    const res = this.state.messageTexts.find(msg => typeof msg === 'object' && msg.id === this.id);
     return res ? res.text : '';
   }
 

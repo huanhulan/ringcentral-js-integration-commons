@@ -88,7 +88,7 @@ export function getMessageTextsReducer(types) {
       case types.updateMessages:
         return [{id, text}].concat(state);
       case types.reply:
-        return state.filter(msg => msg.id !== id);
+        return state.filter(msg => typeof msg === 'object' && msg.id !== id);
       default:
         return state;
     }
